@@ -1,0 +1,20 @@
+{
+  "name": "snooker-aiming",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "parcel src/index.html --no-cache",
+    "build": "parcel build src/index.html"
+  },
+  "repository": "git@github.com:hihuimin/snooker-aiming.git",
+  "author": "huiminliu <huiminliu@tencent.com>",
+  "license": "MIT",
+  "private": true,
+  "devDependencies": {
+    "@parcel/transformer-sass": "2.6.0",
+    "parcel": "^2.6.0",
+    "querystring-es3": "^0.2.1"
+  },
+  "dependencies": {
+    "pixi.js": "^6.4.2"
+  }
+}
