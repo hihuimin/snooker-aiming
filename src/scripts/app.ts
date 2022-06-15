@@ -32,6 +32,13 @@ const cueBall = {
   lastX: W / 2,
 };
 const objectBall = { x: 0, y: 0 };
+const palette = {
+  table: 0x38a327,
+  cueBall: 0xffffff,
+  objectBall: 0xce352d,
+  linesAndTexts: 0x333333,
+  route: 0xffffff,
+};
 let touchstartX;
 let angle = 0;
 let radian = 0;
@@ -56,10 +63,18 @@ function touchmove(event) {
   radian = angleToRadian(angle);
 }
 
+function drawRoute() {
+  const route = new PIXI.Graphics();
+  route.beginFill(palette.route);
+  route.alpha = 0.25;
+  route.drawRect(cueBall.x - radius, cueBall.y - 10000, radius * 2, 10000);
+  table.addChild(route);
+}
+
 function drawCueBall() {
   // draw cue ball
   const ball = new PIXI.Graphics();
-  ball.beginFill(0xffffff);
+  ball.beginFill(palette.cueBall);
   ball.drawCircle(cueBall.x, cueBall.y, radius);
   table.addChild(ball);
 }
@@ -70,7 +85,7 @@ function drawObjectBall() {
 
   // draw object ball
   const ball = new PIXI.Graphics();
-  ball.beginFill(0xbbbbbb); //0xffffff)
+  ball.beginFill(palette.objectBall);
   ball.drawCircle(objectBall.x, objectBall.y, radius);
   table.addChild(ball);
 }
@@ -78,7 +93,7 @@ function drawObjectBall() {
 function drawLines() {
   const line = new PIXI.Graphics();
   line
-    .lineStyle(pixelRatio, 0x000000)
+    .lineStyle(pixelRatio, palette.linesAndTexts)
     .moveTo(cueBall.x, cueBall.y)
     .lineTo(
       objectBall.x + (objectBall.x - cueBall.x) * 10,
@@ -91,7 +106,7 @@ function drawLines() {
 function drawAngleText() {
   const style = new PIXI.TextStyle({
     fontSize: 15 * pixelRatio,
-    fill: "#666666",
+    fill: palette.linesAndTexts,
   });
   const text = new PIXI.Text(Math.abs(Math.round(angle)) + "°", style);
   text.anchor.set(0.5);
@@ -103,7 +118,7 @@ function drawAngleText() {
 function drawScales() {
   const line = new PIXI.Graphics();
   line
-    .lineStyle(pixelRatio, 0x666666)
+    .lineStyle(pixelRatio, palette.linesAndTexts)
     .moveTo(objectBall.x - radius * 2, objectBall.y)
     .lineTo(objectBall.x + radius * 2, objectBall.y);
 
@@ -137,7 +152,7 @@ function drawScales() {
 
   const style = new PIXI.TextStyle({
     fontSize: 13 * pixelRatio,
-    fill: "#666666",
+    fill: palette.linesAndTexts,
   });
 
   scales.forEach((item) => {
@@ -166,16 +181,18 @@ function drawScales() {
 function clearTable() {
   table.clear();
   table.removeChild(...table.children);
-  table.beginFill(0xcccccc); //0x128512)
+  table.beginFill(palette.table);
   table.drawRect(0, 0, W, H);
 }
 
 let cueBallX;
 
 app.ticker.add((delta) => {
+  // skip unnecessary render
   if (cueBallX === cueBall.x) return;
 
   clearTable();
+  drawRoute();
   drawCueBall();
   drawObjectBall();
   drawLines();
