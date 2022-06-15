@@ -2,7 +2,7 @@
   "name": "snooker-aiming",
   "version": "1.0.0",
   "scripts": {
-    "start": "parcel src/index.html --no-cache",
+    "start": "parcel src/index.html",
     "build": "parcel build src/index.html"
   },
   "repository": "git@github.com:hihuimin/snooker-aiming.git",

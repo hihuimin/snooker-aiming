@@ -26,9 +26,14 @@ table.on("touchstart", touchstart);
 table.on("touchmove", touchmove);
 
 const radius = (W * 0.45) / 2; // radius of ball
-const cueBall = { x: W / 2, y: H * 0.5 + radius, lastX: W / 2 };
+const cueBall = {
+  x: W / 2,
+  y: H * 0.618,
+  lastX: W / 2,
+};
 const objectBall = { x: 0, y: 0 };
 let touchstartX;
+let angle = 0;
 let radian = 0;
 
 function touchstart(event) {
@@ -38,13 +43,17 @@ function touchstart(event) {
 
 function touchmove(event) {
   const x = event.data.global.x;
-  cueBall.x = cueBall.lastX + x - touchstartX;
+  cueBall.x = cueBall.lastX + (x - touchstartX) / 5;
 
-  const angle = (90 * (W / 2 - cueBall.x)) / radius;
+  // set limit
+  if (cueBall.x > W / 2 + radius) {
+    cueBall.x = W / 2 + radius;
+  } else if (cueBall.x < W / 2 - radius) {
+    cueBall.x = W / 2 - radius;
+  }
+
+  angle = (90 * (W / 2 - cueBall.x)) / radius;
   radian = angleToRadian(angle);
-
-  console.log(angle, radian);
-  // console.log("touchmove angle: ", angle, " cueBall.x: ", cueBall.x);
 }
 
 function drawCueBall() {
@@ -53,12 +62,6 @@ function drawCueBall() {
   ball.beginFill(0xffffff);
   ball.drawCircle(cueBall.x, cueBall.y, radius);
   table.addChild(ball);
-
-  // draw center of the cue ball
-  // const center = new PIXI.Graphics();
-  // center.beginFill(0x333333);
-  // center.drawCircle(cueBall.x, cueBall.y, 5);
-  // table.addChild(center);
 }
 
 function drawObjectBall() {
@@ -70,12 +73,6 @@ function drawObjectBall() {
   ball.beginFill(0xbbbbbb); //0xffffff)
   ball.drawCircle(objectBall.x, objectBall.y, radius);
   table.addChild(ball);
-
-  // draw center of the object ball
-  // const center = new PIXI.Graphics();
-  // center.beginFill(0x333333);
-  // center.drawCircle(objectBall.x, objectBall.y, 5);
-  // table.addChild(center);
 }
 
 function drawLines() {
@@ -88,7 +85,80 @@ function drawLines() {
       objectBall.y + (objectBall.y - cueBall.y) * 10
     );
   line.moveTo(cueBall.x, cueBall.y).lineTo(cueBall.x, -10000);
-  line.moveTo(cueBall.x, objectBall.y).lineTo(objectBall.x, objectBall.y);
+  table.addChild(line);
+}
+
+function drawAngleText() {
+  const style = new PIXI.TextStyle({
+    fontSize: 15 * pixelRatio,
+    fill: "#666666",
+  });
+  const text = new PIXI.Text(Math.abs(Math.round(angle)) + "°", style);
+  text.anchor.set(0.5);
+  text.x = cueBall.x;
+  text.y = cueBall.y + 15 * pixelRatio;
+  table.addChild(text);
+}
+
+function drawScales() {
+  const line = new PIXI.Graphics();
+  line
+    .lineStyle(pixelRatio, 0x666666)
+    .moveTo(objectBall.x - radius * 2, objectBall.y)
+    .lineTo(objectBall.x + radius * 2, objectBall.y);
+
+  const scales = [
+    { offsetX: 0, text: "0", orien: "up" },
+    { offsetX: -radius * 0.5, text: "½", orien: "up" },
+    { offsetX: +radius * 0.5, text: "½", orien: "up" },
+    { offsetX: -radius * 1, text: "1", orien: "up" },
+    { offsetX: +radius * 1, text: "1", orien: "up" },
+    { offsetX: -radius * 1.5, text: "½", orien: "up" },
+    { offsetX: +radius * 1.5, text: "½", orien: "up" },
+    { offsetX: -radius * 2, text: "1", orien: "up" },
+    { offsetX: +radius * 2, text: "1", orien: "up" },
+    { offsetX: -radius * 0.25, text: "¼", orien: "up" },
+    { offsetX: +radius * 0.25, text: "¼", orien: "up" },
+    { offsetX: -radius * 0.75, text: "¾", orien: "up" },
+    { offsetX: +radius * 0.75, text: "¾", orien: "up" },
+    { offsetX: -radius * 1.25, text: "¼", orien: "up" },
+    { offsetX: +radius * 1.25, text: "¼", orien: "up" },
+    { offsetX: -radius * 1.75, text: "¾", orien: "up" },
+    { offsetX: +radius * 1.75, text: "¾", orien: "up" },
+    { offsetX: -(radius * 1) / 3, text: "⅓", orien: "down" },
+    { offsetX: +(radius * 1) / 3, text: "⅓", orien: "down" },
+    { offsetX: -(radius * 2) / 3, text: "⅔", orien: "down" },
+    { offsetX: +(radius * 2) / 3, text: "⅔", orien: "down" },
+    { offsetX: -(radius * 4) / 3, text: "⅓", orien: "down" },
+    { offsetX: +(radius * 4) / 3, text: "⅓", orien: "down" },
+    { offsetX: -(radius * 5) / 3, text: "⅔", orien: "down" },
+    { offsetX: +(radius * 5) / 3, text: "⅔", orien: "down" },
+  ];
+
+  const style = new PIXI.TextStyle({
+    fontSize: 13 * pixelRatio,
+    fill: "#666666",
+  });
+
+  scales.forEach((item) => {
+    const text = new PIXI.Text(item.text, style);
+    text.anchor.set(0.5);
+    text.x = objectBall.x + item.offsetX;
+    text.y = objectBall.y + (item.orien === "up" ? -15 : 15) * pixelRatio;
+    table.addChild(text);
+
+    // draw from down to up
+    line
+      .moveTo(
+        objectBall.x + item.offsetX,
+        objectBall.y + (item.orien === "up" ? 3 : 6) * pixelRatio
+      )
+      .lineTo(
+        objectBall.x + item.offsetX,
+        objectBall.y - (item.orien === "up" ? 6 : 3) * pixelRatio
+      );
+  });
+
   table.addChild(line);
 }
 
@@ -100,11 +170,19 @@ function clearTable() {
   table.drawRect(0, 0, W, H);
 }
 
+let cueBallX;
+
 app.ticker.add((delta) => {
+  if (cueBallX === cueBall.x) return;
+
   clearTable();
   drawCueBall();
   drawObjectBall();
   drawLines();
+  drawAngleText();
+  drawScales();
+
+  cueBallX = cueBall.x;
 });
 
 export {};
