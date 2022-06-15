@@ -28,14 +28,14 @@ table.on("touchmove", touchmove);
 const radius = (W * 0.45) / 2; // radius of ball
 const cueBall = {
   x: W / 2,
-  y: H * 0.618,
+  y: H * 0.75,
   lastX: W / 2,
 };
 const objectBall = { x: 0, y: 0 };
 const palette = {
   table: 0x38a327,
   cueBall: 0xffffff,
-  objectBall: 0xce352d,
+  objectBall: 0xbb211c,
   linesAndTexts: 0x333333,
   route: 0xffffff,
 };
@@ -66,7 +66,7 @@ function touchmove(event) {
 function drawRoute() {
   const route = new PIXI.Graphics();
   route.beginFill(palette.route);
-  route.alpha = 0.25;
+  route.alpha = 0.15;
   route.drawRect(cueBall.x - radius, cueBall.y - 10000, radius * 2, 10000);
   table.addChild(route);
 }
@@ -192,9 +192,9 @@ app.ticker.add((delta) => {
   if (cueBallX === cueBall.x) return;
 
   clearTable();
+  drawObjectBall();
   drawRoute();
   drawCueBall();
-  drawObjectBall();
   drawLines();
   drawAngleText();
   drawScales();
